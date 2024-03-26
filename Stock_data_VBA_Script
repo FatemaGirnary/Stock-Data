@@ -1,0 +1,158 @@
+Attribute VB_Name = "Module1"
+'The ticker symbol
+ 'Yearly change from the opening price at the beginning of a given year to the closing price at the end of that year.
+'The percentage change from the opening price at the beginning of a given year to the closing price at the end of that year.
+'The total stock volume of the stock.
+
+Sub stock()
+
+Dim stock As String
+Dim stockname As Long
+Dim Worksheet As String
+Dim openprice As Double
+Dim closeprice As Double
+Dim yearlychange As Double
+Dim totalvolume As Double
+Dim ws As Worksheet
+Dim maxincrease As Double
+        Dim maxdecrease As Double
+        Dim maxvolume As Double
+        Dim maxincreasestock As String
+        Dim maxdecreasestock As String
+        Dim maxvolumestock As String
+Dim startingindex As Long
+
+
+
+
+For Each ws In Worksheets
+    
+    'calculate last row
+    Dim lastrow As Long
+    lastrow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    'msgboc lastrow
+    
+    'variable
+    stockname = 2
+     openprice = ws.Cells(stockname, 3).Value
+    startingindex = 2
+    
+    'column heading
+    
+     ws.Cells(1, 9).Value = "Ticker"
+    ws.Cells(1, 10).Value = "Yearly Change"
+    ws.Cells(1, 11).Value = "Percentage"
+    ws.Cells(1, 12).Value = "Total Volume"
+    ws.Cells(1, 16).Value = "Ticker"
+    ws.Cells(1, 17).Value = "Value"
+    ws.Cells(2, 15).Value = "Greatest % Increase"
+    ws.Cells(3, 15).Value = "Greatest % decrease"
+    ws.Cells(4, 15).Value = "Greatest Total Volume"
+         
+         
+    ws.Range("Q2:Q3").NumberFormat = "#.##%"
+    ws.Range("Q4").NumberFormat = "#"
+    ws.Columns("L").NumberFormat = "#"
+    ws.Columns("K").NumberFormat = "#.##%"
+    
+    
+       maxincrease = 0
+         maxdecrease = 0
+         maxvolume = 0
+     
+    For i = 2 To lastrow
+    
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+        
+        'write ticker symbol
+    
+            ws.Cells(stockname, 9).Value = ws.Cells(i, 1).Value
+            
+            
+       
+        
+        'calculate yearly change
+        
+           
+            closeprice = ws.Cells(i, 6).Value
+            yearlychange = closeprice - openprice
+            ws.Cells(stockname, 10).Value = yearlychange
+            
+            
+        'condiitonal formating for yearly change
+            If yearlychange >= 0 Then
+                ws.Cells(stockname, 10).Interior.ColorIndex = 4 ' green
+
+            Else
+                ws.Cells(stockname, 10).Interior.ColorIndex = 3 'red
+            End If
+            
+        
+        'calculate total volume
+            totalvolume = Application.Sum(ws.Range(ws.Cells(startingindex, 7), ws.Cells(i, 7)))
+            ws.Cells(stockname, 12).Value = totalvolume
+            
+             startingindex = i + 1
+        'ws.Cells(stockname, 18).Value = startingindex
+            
+            If totalvolume > maxvolume Then
+                maxvolume = totalvolume
+                ws.Cells(4, "Q").Value = totalvolume
+                ws.Cells(4, "P").Value = ws.Cells(i, "A").Value
+                
+                
+            End If
+            
+        'calculate percentage change
+            If openprice <> 0 Then
+                percentage = (yearlychange / openprice)
+                 ws.Cells(stockname, 11).Value = percentage
+                 
+                 
+                 If percentage > maxincrease Then
+                    maxincrease = percentage
+                    ws.Cells(2, "Q").Value = percentage
+                    ws.Cells(2, "P").Value = ws.Cells(i, "A").Value
+                  
+                End If
+                    
+                    If percentage < maxdecrease Then
+                        maxdecrease = percentage
+                        ws.Cells(3, "Q").Value = percentage
+                        ws.Cells(3, "P").Value = ws.Cells(i, "A").Value
+                    End If
+                    
+            Else
+                ws.Cells(stockname, 11).Value = "N/A"
+            End If
+    
+                
+            'reset variables
+            
+            stockname = stockname + 1
+            openprice = ws.Cells(i + 1, 3).Value
+            closeprice = 0
+            yearlychange = 0
+            totalvolume = 0
+            
+        End If
+      
+    Next i
+stockname = 2
+  
+    
+      ' Autofit to display data
+    ws.Columns("A:Q").AutoFit
+    
+Next ws
+
+
+
+    
+End Sub
+
+
+
+
+
+
